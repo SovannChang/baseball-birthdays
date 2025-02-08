@@ -5,6 +5,7 @@
 
 
 import pandas as pd
+import time
 import random
 
 
@@ -29,17 +30,23 @@ def pull_date(url):
 
 # In[3]:
 
+def scrape():
 
-month_lengths = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-month_folders = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+    month_lengths = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    month_folders = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 
 
-for i in range(12):
-    folder = month_folders[i]
-    for j in range(month_lengths[i]):     
-        day = pull_date(f"https://www.baseball-reference.com/friv/birthdays.cgi?month={i+1}&day={j+1}")
-        day.to_csv(f"Data/{folder}/{folder}_{str(j+1).zfill(2)}.csv", index=False)
-        
-        # Keep requests under 20 per minute (https://www.sports-reference.com/429.html)
-        time.sleep(random.uniform(3.5, 5))
+    for i in range(12):
+        folder = month_folders[i]
+        for j in range(month_lengths[i]):     
+            day = pull_date(f"https://www.baseball-reference.com/friv/birthdays.cgi?month={i+1}&day={j+1}")
+            day.to_csv(f"Data/{folder}/{folder}_{str(j+1).zfill(2)}.csv", index=False)
+            
+            # Keep requests under 20 per minute (https://www.sports-reference.com/429.html)
+            time.sleep(random.uniform(3.5, 5))
 
+
+
+# %%
+if __name__ == "__main__":
+    scrape()
