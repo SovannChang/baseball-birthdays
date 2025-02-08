@@ -20,7 +20,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install pandas
+          pip install pandas lxml
 
       - name: Run the scraper
         run: python data_extraction.py  
