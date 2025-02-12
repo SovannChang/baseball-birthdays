@@ -17,7 +17,7 @@ def pull_date(url):
     table = pd.DataFrame(pd.read_html(url)[0])
     
     # Dropping and renaming columns, replacing null values with 0
-    table = table.drop(columns=["Rk", "From", "To", "H.1", "HR.1", "BB.1"]).rename(columns={"Yrs": "Years", "G": "G_bat", "G.1": "G_pit"}).fillna(0)
+    table = table.drop(columns=["Rk", "H.1", "HR.1", "BB.1"]).rename(columns={"Yrs": "Seasons", "G": "G_bat", "G.1": "G_pit"}).fillna(0)
     
     # Changing data types from float to integer
     table = table.astype({"R": "int", "H": "int", "HR": "int", "RBI": "int", "SB": "int", "BB": "int", "OPS+": "int", "W": "int", "L": "int", "G_pit": "int", "GS": "int", "SV": "int", "SO": "int"})
