@@ -2,7 +2,7 @@ name: Baseball Data Extraction
 
 on:
   schedule:
-    - cron: '0 10 */14 3-10 0'  # Runs every other Sunday at 6 AM ET from March through October
+    - cron: '0 10 * 3-10 1'  # Runs every Monday at 6 AM ET from March through October
   workflow_dispatch:  
 
 jobs:
