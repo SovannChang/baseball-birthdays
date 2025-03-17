@@ -247,7 +247,7 @@ with st.expander("Group Statistics"):
     # Totals
 
     stat_total = st.selectbox("Statistic for Totals graph",
-                        ("WAR", "Number of Players", "All Star Games", "Games Played (Batted)", "Games Played (Pitched)", "AB", "H", "HR", "RBI", "SB", "IP", "Pitching Wins", "Pitching Losses", "Saves", "K"))
+                        ("WAR", "Number of Players", "Games Played (Batted)", "Games Played (Pitched)", "AB", "H", "HR", "RBI", "SB", "IP", "Pitching Wins", "Pitching Losses", "Saves", "K"))
 
     # Initializing lists
     totals = []
@@ -283,7 +283,7 @@ with st.expander("Group Statistics"):
     # Averages
 
     stat_avg = st.selectbox("Statistic for Averages graph",
-                        ("WAR", "All Star Games", "Games Played (Batted)", "Games Played (Pitched)", "AB", "H", "HR", "RBI", "SB", "AVG", "OBP*", "SLG", "OPS*", "IP", "Pitching Wins", "Pitching Losses", "ERA", "ERA+", "WHIP", "Saves", "K"))
+                        ("WAR", "Games Played (Batted)", "Games Played (Pitched)", "AB", "H", "HR", "RBI", "SB", "AVG", "OBP*", "SLG", "OPS*", "IP", "Pitching Wins", "Pitching Losses", "ERA", "ERA+", "WHIP", "Saves", "K"))
     st.write("\* Due to lack of a Plate Appearances stat in the data, aggregated OBP and OPS are estimated based on a rough calculation of PA as AB + BB. This excludes HBP, IBB, and sacrifices, but should be close enough to the correct numbers on a large scale.")
 
     stat_avgs = calculate_total_or_avg_stats(all_data, stat_dict[stat_avg], avgs, True)
