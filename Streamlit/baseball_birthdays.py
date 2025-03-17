@@ -166,50 +166,54 @@ with st.expander("Individual Day Data"):
     st.altair_chart(war_chart + zero_line)
 
     # --------------------------------------------------------------------------------------------------------------------------------------------------------------
-    st.write(f"Number of players born on {selected_month} {str(bday.day)} to play for each franchise")
+    show_franchises = st.checkbox("Show franchise player counts (not recommended for mobile)")
 
-    player_count_dict = {}
+    if show_franchises:
 
-    franchises_col_string = ','.join(bday_df_copy["Franchises"])
-    
-    for team in str.split(franchises_col_string, sep=","):
-        player_count_dict[team] = player_count_dict.get(team, 0) + 1
+        st.write(f"Number of players born on {selected_month} {str(bday.day)} to play for each franchise")
+        
+        player_count_dict = {}
 
-    team_logos = [
-        ["BAL.png", "BOS.png", "NYY.png", "TB.png", "TOR.png"],
-        ["CHW.png", "CLE.png", "DET.png", "KC.png", "MIN.png"],
-        ["HOU.png", "LAA.png", "OAK.png", "SEA.png", "TEX.png"],
-        ["ATL.png", "MIA.png", "NYM.png", "PHI.png", "WAS.png"],
-        ["CHC.png", "CIN.png", "MIL.png", "PIT.png", "STL.png"],
-        ["ARI.png", "COL.png", "LAD.png", "SD.png", "SF.png"]
-    ]
+        franchises_col_string = ','.join(bday_df_copy["Franchises"])
+        
+        for team in str.split(franchises_col_string, sep=","):
+            player_count_dict[team] = player_count_dict.get(team, 0) + 1
 
-    team_player_count = [
-        [player_count_dict.get("BAL", 0), player_count_dict.get("BOS", 0), player_count_dict.get("NYY", 0), player_count_dict.get("TBD", 0), player_count_dict.get("TOR", 0)],
-        [player_count_dict.get("CHW", 0), player_count_dict.get("CLE", 0), player_count_dict.get("DET", 0), player_count_dict.get("KCR", 0), player_count_dict.get("MIN", 0)],
-        [player_count_dict.get("HOU", 0), player_count_dict.get("ANA", 0), player_count_dict.get("OAK", 0), player_count_dict.get("SEA", 0), player_count_dict.get("TEX", 0)],
-        [player_count_dict.get("ATL", 0), player_count_dict.get("FLA", 0), player_count_dict.get("NYM", 0), player_count_dict.get("PHI", 0), player_count_dict.get("WSN", 0)],
-        [player_count_dict.get("CHC", 0), player_count_dict.get("CIN", 0), player_count_dict.get("MIL", 0), player_count_dict.get("PIT", 0), player_count_dict.get("STL", 0)],
-        [player_count_dict.get("ARI", 0), player_count_dict.get("COL", 0), player_count_dict.get("LAD", 0), player_count_dict.get("SDP", 0), player_count_dict.get("SFG", 0)]
-    ]
+        team_logos = [
+            ["BAL.png", "BOS.png", "NYY.png", "TB.png", "TOR.png"],
+            ["CHW.png", "CLE.png", "DET.png", "KC.png", "MIN.png"],
+            ["HOU.png", "LAA.png", "OAK.png", "SEA.png", "TEX.png"],
+            ["ATL.png", "MIA.png", "NYM.png", "PHI.png", "WAS.png"],
+            ["CHC.png", "CIN.png", "MIL.png", "PIT.png", "STL.png"],
+            ["ARI.png", "COL.png", "LAD.png", "SD.png", "SF.png"]
+        ]
 
-    for i in range(11):
-        if i % 2 == 1:
-            st.markdown(
-                """
-                <hr style="width: 85%; height: 1px; background-color: lightgrey; border: none; margin: 0 auto">
-                """, 
-                unsafe_allow_html=True)
-            
-        else:
-            with st.container():
-                cols = st.columns(11)
-                for j in range(11):
-                    with cols[j]:
-                        if j % 2 == 1:
-                            st.image(f"Logos/{team_logos[i // 2][j // 2]}")
-                            st.markdown(f"<div style='text-align:center; font-weight:bold;'>{team_player_count[i // 2][j // 2]}</div>", unsafe_allow_html=True)
-                            st.write("\n")
+        team_player_count = [
+            [player_count_dict.get("BAL", 0), player_count_dict.get("BOS", 0), player_count_dict.get("NYY", 0), player_count_dict.get("TBD", 0), player_count_dict.get("TOR", 0)],
+            [player_count_dict.get("CHW", 0), player_count_dict.get("CLE", 0), player_count_dict.get("DET", 0), player_count_dict.get("KCR", 0), player_count_dict.get("MIN", 0)],
+            [player_count_dict.get("HOU", 0), player_count_dict.get("ANA", 0), player_count_dict.get("OAK", 0), player_count_dict.get("SEA", 0), player_count_dict.get("TEX", 0)],
+            [player_count_dict.get("ATL", 0), player_count_dict.get("FLA", 0), player_count_dict.get("NYM", 0), player_count_dict.get("PHI", 0), player_count_dict.get("WSN", 0)],
+            [player_count_dict.get("CHC", 0), player_count_dict.get("CIN", 0), player_count_dict.get("MIL", 0), player_count_dict.get("PIT", 0), player_count_dict.get("STL", 0)],
+            [player_count_dict.get("ARI", 0), player_count_dict.get("COL", 0), player_count_dict.get("LAD", 0), player_count_dict.get("SDP", 0), player_count_dict.get("SFG", 0)]
+        ]
+
+        for i in range(11):
+            if i % 2 == 1:
+                st.markdown(
+                    """
+                    <hr style="width: 85%; height: 1px; background-color: lightgrey; border: none; margin: 0 auto">
+                    """, 
+                    unsafe_allow_html=True)
+                
+            else:
+                with st.container():
+                    cols = st.columns(11)
+                    for j in range(11):
+                        with cols[j]:
+                            if j % 2 == 1:
+                                st.image(f"Logos/{team_logos[i // 2][j // 2]}")
+                                st.markdown(f"<div style='text-align:center; font-weight:bold;'>{team_player_count[i // 2][j // 2]}</div>", unsafe_allow_html=True)
+                                st.write("\n")
                         
 
 # --------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -247,7 +251,7 @@ with st.expander("Group Statistics"):
     # Totals
 
     stat_total = st.selectbox("Statistic for Totals graph",
-                        ("WAR", "Number of Players", "Games Played (Batted)", "Games Played (Pitched)", "AB", "H", "HR", "RBI", "SB", "IP", "Pitching Wins", "Pitching Losses", "Saves", "K"))
+                        ("WAR", "Number of Players", "All Star Games", "Games Played (Batted)", "Games Played (Pitched)", "AB", "H", "HR", "RBI", "SB", "IP", "Pitching Wins", "Pitching Losses", "Saves", "K"))
 
     # Initializing lists
     totals = []
@@ -269,21 +273,41 @@ with st.expander("Group Statistics"):
 
     st.write(f"**Top 5 birthdays by total {stat_dict[stat_total]}:**")
 
+    # Variable to keep track of previous index to avoid duplicates
+    idx = -1
+
     for i in range(0, 5):
-        m, d = get_month_and_day(stat_totals.index(stat_totals_h_to_l[i]))
+        if i > 0 and stat_totals_h_to_l[i] == stat_totals_h_to_l[i-1] :
+            # If 2+ birthdays share a stat, ensure no duplicate date retrieval
+            idx = stat_totals.index(stat_totals_h_to_l[i], idx+1)
+        else:
+            # Current birthday stat is different from previous stat
+            idx = stat_totals.index(stat_totals_h_to_l[i])
+
+        m, d = get_month_and_day(idx)
         st.text(f"{i+1}.  {month_names[m-1]} {d}    --    {f'{stat_totals_h_to_l[i]:.1f}'.rstrip('0').rstrip('.')}")
     
     st.text("\n")
     st.write(f"**Bottom 5 birthdays by total {stat_dict[stat_total]}:**")
 
+    # Variable to keep track of previous index to avoid duplicates 
+    idx = -1
+
     for i in range(0, 5):
-        m, d = get_month_and_day(stat_totals.index(stat_totals_l_to_h[i]))
+        if i > 0 and stat_totals_l_to_h[i] == stat_totals_l_to_h[i-1] :
+            # If 2+ birthdays share a stat, ensure no duplicate date retrieval
+            idx = stat_totals.index(stat_totals_l_to_h[i], idx+1)
+        else:
+            # Current birthday stat is different from previous stat
+            idx = stat_totals.index(stat_totals_l_to_h[i])
+
+        m, d = get_month_and_day(idx)
         st.text(f"{i+1}.  {month_names[m-1]} {d}    --    {f'{stat_totals_l_to_h[i]:.1f}'.rstrip('0').rstrip('.')}")
 
     # Averages
 
     stat_avg = st.selectbox("Statistic for Averages graph",
-                        ("WAR", "Games Played (Batted)", "Games Played (Pitched)", "AB", "H", "HR", "RBI", "SB", "AVG", "OBP*", "SLG", "OPS*", "IP", "Pitching Wins", "Pitching Losses", "ERA", "ERA+", "WHIP", "Saves", "K"))
+                        ("WAR", "All Star Games", "Games Played (Batted)", "Games Played (Pitched)", "AB", "H", "HR", "RBI", "SB", "AVG", "OBP*", "SLG", "OPS*", "IP", "Pitching Wins", "Pitching Losses", "ERA", "ERA+", "WHIP", "Saves", "K"))
     st.write("\* Due to lack of a Plate Appearances stat in the data, aggregated OBP and OPS are estimated based on a rough calculation of PA as AB + BB. This excludes HBP, IBB, and sacrifices, but should be close enough to the correct numbers on a large scale.")
 
     stat_avgs = calculate_total_or_avg_stats(all_data, stat_dict[stat_avg], avgs, True)
@@ -297,6 +321,8 @@ with st.expander("Group Statistics"):
 
     st.pyplot(plt.gcf())
     
+
+
     stat_avgs_l_to_h = sorted(stat_avgs)
     stat_avgs_h_to_l = sorted(stat_avgs, reverse=True)
 
@@ -307,16 +333,37 @@ with st.expander("Group Statistics"):
         good = stat_avgs_h_to_l
         bad = stat_avgs_l_to_h
 
+
     st.write(f"**Top 5 birthdays by average {stat_avg}:**")
 
+    # Variable to keep track of previous index to avoid duplicates 
+    idx = -1
 
     for i in range(0, 5):
-        m, d = get_month_and_day(stat_avgs.index(good[i]))
+        if i > 0 and good[i] == good[i-1] :
+            # If 2+ birthdays share a stat, ensure no duplicate date retrieval
+            idx = stat_avgs.index(good[i], idx+1)
+        else:
+            # Current birthday stat is different from previous stat
+            idx = stat_avgs.index(good[i])
+
+        m, d = get_month_and_day(idx)
         st.text(f"{i+1}.  {month_names[m-1]} {d}    --    {good[i]:.3f}")
+        
     
     st.text("\n")
     st.write(f"**Bottom 5 birthdays by average {stat_avg}:**")
 
+    # Variable to keep track of previous index to avoid duplicates 
+    idx = -1
+
     for i in range(0, 5):
-        m, d = get_month_and_day(stat_avgs.index(bad[i]))
+        if i > 0 and bad[i] == bad[i-1] :
+            # If 2+ birthdays share a stat, ensure no duplicate date retrieval
+            idx = stat_avgs.index(bad[i], idx+1)
+        else:
+            # Current birthday stat is different from previous stat
+            idx = stat_avgs.index(bad[i])
+
+        m, d = get_month_and_day(idx)
         st.text(f"{i+1}.  {month_names[m-1]} {d}    --    {bad[i]:.3f}")
