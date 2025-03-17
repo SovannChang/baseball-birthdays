@@ -33,7 +33,6 @@ def sum_ip(ip_list):
     for ip in ip_list:
         sum = sum + int(ip) + (ip % 1) * 10/3
     
-    print(sum % 1)
     if sum % 1 < .995 and sum % 1 > 0.05:
         return int(sum) + (sum % 1 * 3 / 10)
     else:
@@ -104,9 +103,13 @@ def get_month_and_day(day_of_year):
 
     for i in range(12):
         if day <= month_lengths[i]:
-            return (i+1, day)
+            return (i, day)
         else:
             day = day - month_lengths[i]
+
+
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 st.title("MLB - Major League Birthdays")
@@ -263,7 +266,7 @@ with st.expander("Group Statistics"):
     plt.xticks([0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335], labels=["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"])
     plt.xlabel("Birthday")
     plt.ylabel(f"Total {stat_total}")
-    plt.title(f"Total {stat_dict[stat_total]} For Each Birthday")
+    plt.title(f"Total {stat_total} For Each Birthday")
     plt.plot(stat_totals)
 
     st.pyplot(plt.gcf())
@@ -271,7 +274,7 @@ with st.expander("Group Statistics"):
     stat_totals_l_to_h = sorted(stat_totals)
     stat_totals_h_to_l = sorted(stat_totals, reverse=True)
 
-    st.write(f"**Top 5 birthdays by total {stat_dict[stat_total]}:**")
+    st.write(f"**Top 5 birthdays by total {stat_total} (with top 3 contributors):**")
 
     # Variable to keep track of previous index to avoid duplicates
     idx = -1
@@ -285,10 +288,24 @@ with st.expander("Group Statistics"):
             idx = stat_totals.index(stat_totals_h_to_l[i])
 
         m, d = get_month_and_day(idx)
-        st.text(f"{i+1}.  {month_names[m-1]} {d}    --    {f'{stat_totals_h_to_l[i]:.1f}'.rstrip('0').rstrip('.')}")
-    
+        st.text(f"{i+1}.  {month_names[m]} {d}    --    {f'{stat_totals_h_to_l[i]:.1f}'.rstrip('0').rstrip('.')}")
+
+        if stat_total != "Number of Players":
+            top_daily_players = all_data[m][d-1].sort_values(stat_dict[stat_total], ascending=False).reset_index(drop=True)
+            top_daily_stats = list(top_daily_players.loc[0:3, stat_dict[stat_total]])
+
+            if stat_total == "IP":
+                top_daily_ip = [int(x) + (x % 1 * 3 / 10) if x % 1 != 0 else int(x) for x in top_daily_stats]
+                st.caption(f"""{top_daily_players.loc[0, 'Name']} ({top_daily_ip[0]}), 
+                           {top_daily_players.loc[1, 'Name']} ({top_daily_ip[1]}), 
+                           {top_daily_players.loc[2, 'Name']} ({top_daily_ip[2]})""")
+            else:
+                st.caption(f"""{top_daily_players.loc[0, 'Name']} ({top_daily_stats[0]}), 
+                           {top_daily_players.loc[1, 'Name']} ({top_daily_stats[1]}), 
+                           {top_daily_players.loc[2, 'Name']} ({top_daily_stats[2]})""")
+                   
     st.text("\n")
-    st.write(f"**Bottom 5 birthdays by total {stat_dict[stat_total]}:**")
+    st.write(f"**Bottom 5 birthdays by total {stat_total} (with top 3 contributors):**")
 
     # Variable to keep track of previous index to avoid duplicates 
     idx = -1
@@ -302,8 +319,25 @@ with st.expander("Group Statistics"):
             idx = stat_totals.index(stat_totals_l_to_h[i])
 
         m, d = get_month_and_day(idx)
-        st.text(f"{i+1}.  {month_names[m-1]} {d}    --    {f'{stat_totals_l_to_h[i]:.1f}'.rstrip('0').rstrip('.')}")
+        st.text(f"{i+1}.  {month_names[m]} {d}    --    {f'{stat_totals_l_to_h[i]:.1f}'.rstrip('0').rstrip('.')}")
 
+        if stat_total != "Number of Players":
+            top_daily_players = all_data[m][d-1].sort_values(stat_dict[stat_total], ascending=False).reset_index(drop=True)
+            top_daily_stats = list(top_daily_players.loc[0:3, stat_dict[stat_total]])
+
+            if stat_total == "IP":
+                top_daily_ip = [int(x) + (x % 1 * 3 / 10) if x % 1 != 0 else int(x) for x in top_daily_stats]
+                st.caption(f"""{top_daily_players.loc[0, 'Name']} ({top_daily_ip[0]}), 
+                           {top_daily_players.loc[1, 'Name']} ({top_daily_ip[1]}), 
+                           {top_daily_players.loc[2, 'Name']} ({top_daily_ip[2]})""")
+            else:
+                st.caption(f"""{top_daily_players.loc[0, 'Name']} ({top_daily_stats[0]}), 
+                           {top_daily_players.loc[1, 'Name']} ({top_daily_stats[1]}), 
+                           {top_daily_players.loc[2, 'Name']} ({top_daily_stats[2]})""")
+
+
+    st.text("\n")
+    st.text("\n")
     # Averages
 
     stat_avg = st.selectbox("Statistic for Averages graph",
@@ -316,7 +350,7 @@ with st.expander("Group Statistics"):
     plt.xticks([0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335], labels=["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"])
     plt.xlabel("Birthday")
     plt.ylabel(f"Average {stat_avg}")
-    plt.title(f"Average {stat_dict[stat_avg]} For Each Birthday")
+    plt.title(f"Average {stat_avg} For Each Birthday")
     plt.plot(stat_avgs)
 
     st.pyplot(plt.gcf())
@@ -348,8 +382,8 @@ with st.expander("Group Statistics"):
             idx = stat_avgs.index(good[i])
 
         m, d = get_month_and_day(idx)
-        st.text(f"{i+1}.  {month_names[m-1]} {d}    --    {good[i]:.3f}")
-        
+        st.text(f"{i+1}.  {month_names[m]} {d}    --    {good[i]:.3f}")
+
     
     st.text("\n")
     st.write(f"**Bottom 5 birthdays by average {stat_avg}:**")
@@ -366,4 +400,4 @@ with st.expander("Group Statistics"):
             idx = stat_avgs.index(bad[i])
 
         m, d = get_month_and_day(idx)
-        st.text(f"{i+1}.  {month_names[m-1]} {d}    --    {bad[i]:.3f}")
+        st.text(f"{i+1}.  {month_names[m]} {d}    --    {bad[i]:.3f}")
