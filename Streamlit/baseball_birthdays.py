@@ -21,7 +21,7 @@ def load_data():
 
     for i in range(12):
         for j in range(month_lengths[i]):
-            all_data[i].append(pd.read_csv(f"Data\{month_names[i]}\{month_names[i]}_{str(j+1).zfill(2)}.csv"))
+            all_data[i].append(pd.read_csv(f"Data/{month_names[i]}/{month_names[i]}_{str(j+1).zfill(2)}.csv"))
 
     return all_data
 
