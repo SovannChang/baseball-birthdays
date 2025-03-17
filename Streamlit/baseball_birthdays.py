@@ -117,7 +117,7 @@ st.title("MLB - Major League Birthdays")
 st.write("Note: this page looks best when used in a window that is not full screen, but feel free to adjust the size to your liking.")
 
 st.subheader("Table of Contents")
-st.write("1. Individual Day Data - Select a birthday and view  players who were born on that day, plus some visualizations of various data about them")
+st.write("1. Individual Day Data - Select a birthday and view  players who were born on that day, plus some adjustable graphs")
 st.write("2. Group Statistics - Compare statistics across birthdays, with each day's players' statistics aggregated")
 
 all_data = load_data()
@@ -154,19 +154,48 @@ with st.expander("Individual Day Data"):
 
     # --------------------------------------------------------------------------------------------------------------------------------------------------------------
     st.subheader("Figures")
-    st.write("WAR by birth year for players born on ", selected_month, str(bday.day))
+
+    # Dictionary to convert human-friendly stat names to column names
+    stat_dict = {
+        "Number of Players": "Number of Players",
+        "WAR" : "WAR",
+        "All Star Games" : "ASG",
+        "Games Played (Batted)" : "G_bat",
+        "Games Played (Pitched)" : "G_pit",
+        "AB" : "AB",
+        "H" : "H",
+        "HR" : "HR",
+        "RBI" : "RBI",
+        "SB" : "SB",
+        "AVG" : "BA",
+        "OBP*" : "OBP",
+        "SLG" : "SLG",
+        "OPS*" : "OPS",
+        "IP" : "IP",
+        "Pitching Wins" : "W",
+        "Pitching Losses" : "L",
+        "ERA" : "ERA",
+        "ERA+": "ERA+",
+        "WHIP" : "WHIP",
+        "Saves" : "SV",
+        "K" : "SO"
+    }
+
+    stat_scatterplot = st.selectbox(f"Statistic for {selected_month} {str(bday.day)} player scatterplot",
+                        ("WAR", "All Star Games", "Games Played (Batted)", "Games Played (Pitched)", "AB", "H", "HR", "RBI", "SB", "IP", "Pitching Wins", "Pitching Losses", "Saves", "K"))
+
     st.write("Hover over data point for details")
 
-    war_chart = (
-        alt.Chart(bday_df).mark_circle().encode(x="WAR", y=alt.Y("Born", scale=alt.Scale(domain=[1830, bday_df["Born"].max()+5]), axis=alt.Axis(format="d")), tooltip=["Name", "Seasons", "WAR", "Born"])
+    stat_chart = (
+        alt.Chart(bday_df).mark_circle().encode(x=stat_dict[stat_scatterplot], y=alt.Y("Born", scale=alt.Scale(domain=[1830, bday_df["Born"].max()+5]), axis=alt.Axis(format="d")), tooltip=["Name", "Seasons", stat_dict[stat_scatterplot], "Born"])
     )
 
-    # Vertical line at 0 WAR to separate +WAR players from -WAR players
+    # Vertical line at 0 - originally meant to separate +WAR players from -WAR players
     zero_line = alt.Chart(pd.DataFrame({"x": [0]})).mark_rule(color="black", strokeWidth=0.75).encode(
-        x=alt.X("x:Q", axis=alt.Axis(title="Career WAR"))
+        x=alt.X("x:Q", axis=alt.Axis(title=f"Career {stat_dict[stat_scatterplot]}"))
     )
 
-    st.altair_chart(war_chart + zero_line)
+    st.altair_chart(stat_chart + zero_line)
 
     # --------------------------------------------------------------------------------------------------------------------------------------------------------------
     show_franchises = st.checkbox("Show franchise player counts (not recommended for mobile)")
@@ -224,32 +253,6 @@ with st.expander("Individual Day Data"):
 
 with st.expander("Group Statistics"):
     st.subheader("Birthday Aggregated Graphs")
-
-    # Dictionary to convert human-friendly stat names to column names
-    stat_dict = {
-        "Number of Players": "Number of Players",
-        "WAR" : "WAR",
-        "All Star Games" : "ASG",
-        "Games Played (Batted)" : "G_bat",
-        "Games Played (Pitched)" : "G_pit",
-        "AB" : "AB",
-        "H" : "H",
-        "HR" : "HR",
-        "RBI" : "RBI",
-        "SB" : "SB",
-        "AVG" : "BA",
-        "OBP*" : "OBP",
-        "SLG" : "SLG",
-        "OPS*" : "OPS",
-        "IP" : "IP",
-        "Pitching Wins" : "W",
-        "Pitching Losses" : "L",
-        "ERA" : "ERA",
-        "ERA+": "ERA+",
-        "WHIP" : "WHIP",
-        "Saves" : "SV",
-        "K" : "SO"
-    }
 
     # Totals
 
