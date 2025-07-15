@@ -88,6 +88,8 @@ def calculate_total_or_avg_stats(all_data, stat_name, stat_list, is_avg, war_min
                     stat_list.append(len(all_data[i][j]))
                 elif stat_name == "Players Over _ WAR":
                     stat_list.append(len(all_data[i][j][all_data[i][j]["WAR"] > war_min]))
+                elif stat_name == "Hall of Famers":
+                    stat_list.append(len(all_data[i][j][all_data[i][j]["Name"].str.contains("HOF")]))
                 elif stat_name == "IP":
                     stat_list.append(sum_ip(all_data[i][j]["IP"]))
                 else:
@@ -232,7 +234,7 @@ with st.expander("Individual Day Data"):
     st.subheader("Player Table")
 
     st.write("Career statistics of all players born on ", selected_month, str(bday.day))
-    st.write("Sortable - default is by birth year")
+    st.write("Searchable and sortable - default is by birth year")
     st.write("Players with \"HOF\" next to their name are in the Hall of Fame")
 
     # Creating a copy to display the IP column with standard baseball notation without altering the underlying data
@@ -252,8 +254,9 @@ with st.expander("Individual Day Data"):
     stat_dict = {
         "Number of Players": "Number of Players",
         "WAR" : "WAR",
-        "Players Over _ WAR": "Players Over _ WAR",
+        "Players Over _ WAR" : "Players Over _ WAR",
         "All Star Games" : "ASG",
+        "Hall of Famers" : "Hall of Famers",
         "Games Played (Batted)" : "G_bat",
         "Games Played (Pitched)" : "G_pit",
         "AB" : "AB",
@@ -374,7 +377,7 @@ with st.expander("Group Statistics"):
     # Totals
 
     stat_total = st.selectbox("Statistic for Totals graph",
-                        ("WAR", "Number of Players", "Players Over _ WAR", "All Star Games", "Games Played (Batted)", "Games Played (Pitched)", "AB", "H", "HR", "RBI", "SB", "IP", "Pitching Wins", "Pitching Losses", "Saves", "K"))
+                        ("WAR", "Number of Players", "Players Over _ WAR", "All Star Games", "Hall of Famers", "Games Played (Batted)", "Games Played (Pitched)", "AB", "H", "HR", "RBI", "SB", "IP", "Pitching Wins", "Pitching Losses", "Saves", "K"))
     
     if stat_total == "Players Over _ WAR":
         war_min = st.number_input("Minimum WAR", min_value=-10.0, max_value=200.0, value=0.0, step=0.5, format="%0.1f")
@@ -399,8 +402,11 @@ with st.expander("Group Statistics"):
     stat_totals_l_to_h = sorted(stat_totals)
     stat_totals_h_to_l = sorted(stat_totals, reverse=True)
 
-    st.write(f"**Top 5 birthdays by total {stat_total} (with top 3 contributors):**")
-
+    if stat_total not in ["Number of Players", "Players Over _ WAR", "Hall of Famers"]:
+        st.write(f"**Top 5 birthdays by total {stat_total} (with top 3 contributors):**")
+    else:
+        st.write(f"**Top 5 birthdays by total {stat_total}:**")
+        
     # Variable to keep track of previous index to avoid duplicates
     idx = -1
 
@@ -415,7 +421,14 @@ with st.expander("Group Statistics"):
         m, d = get_month_and_day(idx)
         st.text(f"{i+1}.  {month_names[m]} {d}    --    {f'{stat_totals_h_to_l[i]:.1f}'.rstrip('0').rstrip('.')}")
 
-        if stat_total != "Number of Players" and stat_total != "Players Over _ WAR":
+        if stat_total == "Hall of Famers":
+            hofers = list(all_data[m][d-1][all_data[m][d-1]["Name"].str.contains("HOF")]["Name"])
+            hofers_string = f"{hofers[0][:-4]}"
+            for name in hofers[1:]:
+                hofers_string = hofers_string + f", {name[:-4]}" 
+
+            st.caption(hofers_string)
+        elif stat_total not in ["Number of Players", "Players Over _ WAR", "Hall of Famers"]:
             top_daily_players = all_data[m][d-1].sort_values(stat_dict[stat_total], ascending=False).reset_index(drop=True)
             top_daily_stats = list(top_daily_players.loc[0:3, stat_dict[stat_total]])
 
@@ -430,7 +443,10 @@ with st.expander("Group Statistics"):
                            {top_daily_players.loc[2, 'Name']} ({top_daily_stats[2]})""")
                    
     st.text("\n")
-    st.write(f"**Bottom 5 birthdays by total {stat_total} (with top 3 contributors):**")
+    if stat_total not in ["Number of Players", "Players Over _ WAR", "Hall of Famers"]:
+        st.write(f"**Bottom 5 birthdays by total {stat_total} (with top 3 contributors):**")
+    else:
+        st.write(f"**Bottom 5 birthdays by total {stat_total}:**")
 
     # Variable to keep track of previous index to avoid duplicates 
     idx = -1
@@ -446,7 +462,7 @@ with st.expander("Group Statistics"):
         m, d = get_month_and_day(idx)
         st.text(f"{i+1}.  {month_names[m]} {d}    --    {f'{stat_totals_l_to_h[i]:.1f}'.rstrip('0').rstrip('.')}")
 
-        if stat_total != "Number of Players" and stat_total != "Players Over _ WAR":
+        if stat_total not in ["Number of Players", "Players Over _ WAR", "Hall of Famers"]:
             top_daily_players = all_data[m][d-1].sort_values(stat_dict[stat_total], ascending=False).reset_index(drop=True)
             top_daily_stats = list(top_daily_players.loc[0:3, stat_dict[stat_total]])
 
@@ -461,13 +477,15 @@ with st.expander("Group Statistics"):
                            {top_daily_players.loc[2, 'Name']} ({top_daily_stats[2]})""")
 
 
+
     st.text("\n")
     st.text("\n")
     # Averages
 
     stat_avg = st.selectbox("Statistic for Averages graph",
                         ("WAR", "All Star Games", "Games Played (Batted)", "Games Played (Pitched)", "AB", "H", "HR", "RBI", "SB", "AVG", "OBP*", "SLG", "OPS*", "IP", "Pitching Wins", "Pitching Losses", "ERA", "ERA+", "WHIP", "Saves", "K"))
-    st.write("\* Due to lack of a Plate Appearances stat in the data, aggregated OBP and OPS are estimated based on a rough calculation of PA as AB + BB. This excludes HBP, IBB, and sacrifices, but should be close enough to the correct numbers on a large scale.")
+    if stat_avg in ["OBP*", "OPS*"]:
+        st.write("\* Due to lack of a Plate Appearances stat in the data, aggregated OBP and OPS are estimated based on a rough calculation of PA as AB + BB. This excludes HBP, IBB, and sacrifices, but should be close enough to the correct numbers on a large scale.")
 
     stat_avgs = calculate_total_or_avg_stats(all_data, stat_dict[stat_avg], avgs, True)
 
