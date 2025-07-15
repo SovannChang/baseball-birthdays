@@ -217,7 +217,14 @@ st.write("2. Group Statistics - Compare statistics across birthdays, with each d
 
 all_data = load_data()
 
-with st.expander("Individual Day Data"):
+
+if "individual_open" not in st.session_state:
+    st.session_state.individual_open = False
+
+def open_individual():
+    st.session_state.individual_open = True
+
+with st.expander("Individual Day Data", expanded=st.session_state.individual_open):
 
     # --------------------------------------------------------------------------------------------------------------------------------------------------------------
     st.subheader("Birthday Selection")
@@ -316,9 +323,11 @@ with st.expander("Individual Day Data"):
                 old_young = "younger"
             st.text(f"{i+1}.   {closest_5[i][0]}:    born {closest_5[i][2]}     ({closest_5[i][1]} WAR)      -      you are {abs(days_apart)} {day_s} {old_young}")
 
-
+    st.text("\n")
+    st.text("\n")
+    
     # --------------------------------------------------------------------------------------------------------------------------------------------------------------
-    show_franchises = st.checkbox("Show franchise player counts (not recommended for mobile)")
+    show_franchises = st.checkbox("Show franchise player counts (not recommended for mobile)", on_change=open_individual)
 
     if show_franchises:
 
