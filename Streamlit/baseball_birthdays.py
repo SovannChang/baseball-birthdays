@@ -43,8 +43,9 @@ def sum_ip(ip_list):
 # @param stat_totals - string representing name of statistic
 # @param stat_list - list of totals or averages - overwritten each time to reduce memory strain
 # @param is_avg - boolean value representing whether the function should calculate totals (False) or average (True)
+# @param war_min - float representing the minimum WAR for the "Players Over _ WAR" calculation. Optional because not used for any other calculation
 # @return - lists representing the totals or averages for each day for the input statistic
-def calculate_total_or_avg_stats(all_data, stat_name, stat_list, is_avg):
+def calculate_total_or_avg_stats(all_data, stat_name, stat_list, is_avg, war_min=0):
     month_lengths = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
 
     stat_list = []
@@ -85,6 +86,8 @@ def calculate_total_or_avg_stats(all_data, stat_name, stat_list, is_avg):
             else:
                 if stat_name == "Number of Players":
                     stat_list.append(len(all_data[i][j]))
+                elif stat_name == "Players Over _ WAR":
+                    stat_list.append(len(all_data[i][j][all_data[i][j]["WAR"] > war_min]))
                 elif stat_name == "IP":
                     stat_list.append(sum_ip(all_data[i][j]["IP"]))
                 else:
@@ -249,6 +252,7 @@ with st.expander("Individual Day Data"):
     stat_dict = {
         "Number of Players": "Number of Players",
         "WAR" : "WAR",
+        "Players Over _ WAR": "Players Over _ WAR",
         "All Star Games" : "ASG",
         "Games Played (Batted)" : "G_bat",
         "Games Played (Pitched)" : "G_pit",
@@ -370,13 +374,18 @@ with st.expander("Group Statistics"):
     # Totals
 
     stat_total = st.selectbox("Statistic for Totals graph",
-                        ("WAR", "Number of Players", "All Star Games", "Games Played (Batted)", "Games Played (Pitched)", "AB", "H", "HR", "RBI", "SB", "IP", "Pitching Wins", "Pitching Losses", "Saves", "K"))
+                        ("WAR", "Number of Players", "Players Over _ WAR", "All Star Games", "Games Played (Batted)", "Games Played (Pitched)", "AB", "H", "HR", "RBI", "SB", "IP", "Pitching Wins", "Pitching Losses", "Saves", "K"))
+    
+    if stat_total == "Players Over _ WAR":
+        war_min = st.number_input("Minimum WAR", min_value=-10.0, max_value=200.0, value=0.0, step=0.5, format="%0.1f")
+    else:
+        war_min = 0
 
     # Initializing lists
     totals = []
     avgs = []
 
-    stat_totals = calculate_total_or_avg_stats(all_data, stat_dict[stat_total], totals, False)
+    stat_totals = calculate_total_or_avg_stats(all_data, stat_dict[stat_total], totals, False, war_min)
 
     plt.figure(figsize=(10, 3))
     plt.xticks([0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335], labels=["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"])
@@ -406,7 +415,7 @@ with st.expander("Group Statistics"):
         m, d = get_month_and_day(idx)
         st.text(f"{i+1}.  {month_names[m]} {d}    --    {f'{stat_totals_h_to_l[i]:.1f}'.rstrip('0').rstrip('.')}")
 
-        if stat_total != "Number of Players":
+        if stat_total != "Number of Players" and stat_total != "Players Over _ WAR":
             top_daily_players = all_data[m][d-1].sort_values(stat_dict[stat_total], ascending=False).reset_index(drop=True)
             top_daily_stats = list(top_daily_players.loc[0:3, stat_dict[stat_total]])
 
@@ -437,7 +446,7 @@ with st.expander("Group Statistics"):
         m, d = get_month_and_day(idx)
         st.text(f"{i+1}.  {month_names[m]} {d}    --    {f'{stat_totals_l_to_h[i]:.1f}'.rstrip('0').rstrip('.')}")
 
-        if stat_total != "Number of Players":
+        if stat_total != "Number of Players" and stat_total != "Players Over _ WAR":
             top_daily_players = all_data[m][d-1].sort_values(stat_dict[stat_total], ascending=False).reset_index(drop=True)
             top_daily_stats = list(top_daily_players.loc[0:3, stat_dict[stat_total]])
 
