@@ -107,6 +107,96 @@ def get_month_and_day(day_of_year):
         else:
             day = day - month_lengths[i]
 
+# Returns a list of the 5 players born closest to the input date
+# @param all_data - list of lists containing dataframes for each day
+# @param date - datetime.date value representing the target day
+# return - a list of lists, with each sublist representing a player and containing name, WAR, and birthdate
+def find_5_closest_players(all_data, date):
+    closest = []
+    younger_than_all = False
+
+    # If the selected date is within 18 years of the current date, set to 18 years (give or take a day b/c leap years) before today, and set to only go backwards
+    # Saves calculation time
+    # Assumes no players younger than 18
+    if date.today() - date < datetime.timedelta(days = 365 * 18 + 4):
+        younger_than_all = True
+        date = date - datetime.timedelta(days = 365 * 18 + 4)
+
+    day = date.day
+    month = date.month
+    year = date.year
+
+    day_results = search_day(all_data, day, month, year)
+    if len(day_results.index) != 0:
+        for i in range(len(day_results)):
+            closest.append([day_results.loc[i, "Name"], day_results.loc[i, "WAR"], datetime.date(year, month, day)])
+
+    # Setup for the loop
+    next_day = [day, month, year]
+    prev_day = [day, month, year]
+
+    # Loop through days getting progressively farther away from the birthday until 5 players found
+    while len(closest) < 5:
+        if not younger_than_all:
+            next_day = add_day(next_day[0], next_day[1], next_day[2])
+            nextday_results = search_day(all_data, next_day[0], next_day[1], next_day[2])
+            if len(nextday_results.index) != 0:
+                for i in range(len(nextday_results)):
+                    closest.append([nextday_results.loc[i, "Name"], nextday_results.loc[i, "WAR"], datetime.date(next_day[2], next_day[1], next_day[0])])
+
+        prev_day = subtract_day(prev_day[0], prev_day[1], prev_day[2])
+        prevday_results = search_day(all_data, prev_day[0], prev_day[1], prev_day[2])
+        if len(prevday_results.index) != 0:
+            for i in range(len(prevday_results)):
+                closest.append([prevday_results.loc[i, "Name"], prevday_results.loc[i, "WAR"], datetime.date(prev_day[2], prev_day[1], prev_day[0])])
+
+    return closest
+
+# Returns all players born on the parameter day, month, and year. Empty DF if none
+# @param all_data - list of lists containing dataframes for each day
+# @param day - a number representing the day to search for
+# @param month - a number representing the month to search for
+# @param year - the year to search for
+# return - a dataframe containing all players born on the parameter day, month, and year, or empty if none were
+def search_day(all_data, day, month, year):
+    birthday_df = all_data[month-1][day-1]
+    return birthday_df[birthday_df["Born"] == year].reset_index()
+
+# Returns the day, month, and year of the date following the input date
+# @param day - the day
+# @param month - the month
+# @param year - the year
+# return - the day, month, and year of the date following the input date
+def add_day(day, month, year):
+    month_lengths = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    if day == 28 and month == 2 and year % 4 != 0:
+        # February 28 on a non-leap year is the end of the month
+        return [1, 3, year]
+    elif day < month_lengths[month-1]:
+        return [day + 1, month, year]
+    else:
+        if month < 12:
+            return [1, month + 1, year]
+        else:
+            return [1, 1, year + 1]
+        
+# Returns the day, month, and year of the date before the input date
+# @param day - the day
+# @param month - the month
+# @param year - the year
+# return - the day, month, and year of the date before the input date
+def subtract_day(day, month, year):
+    month_lengths = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+    if day == 1 and month == 3 and year % 4 != 0:
+        # February 28 on a non-leap year is the end of the month
+        return [28, 2, year]
+    elif day > 1:
+        return [day - 1, month, year]
+    else:
+        if month > 1:
+            return [month_lengths[month-2], month-1, year]
+        else:
+            return [31, 12, year - 1]
 
 # --------------------------------------------------------------------------------------------------------------------------------------------------------------
 # --------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -196,6 +286,29 @@ with st.expander("Individual Day Data"):
     )
 
     st.altair_chart(stat_chart + zero_line)
+
+    # --------------------------------------------------------------------------------------------------------------------------------------------------------------
+    st.subheader("Bonus - Closest Player to Your Age")
+    st.text(f"Which players were born closest to {selected_month} {str(bday.day)}, {str(bday.year)}?")
+    closest_5 = find_5_closest_players(all_data, bday)
+    for i in range(len(closest_5)):
+        days_apart = (closest_5[i][2] - bday).days
+
+        day_s = "days"
+
+        if abs(days_apart) == 1:
+             day_s = "day"
+
+        if days_apart == 0:
+            st.text(f"{i+1}.   {closest_5[i][0]}:    born {closest_5[i][2]}     ({closest_5[i][1]} WAR)      -      you are the exact same age!")
+
+        else:
+            if days_apart > 0:
+                old_young = "older"
+            else:
+                old_young = "younger"
+            st.text(f"{i+1}.   {closest_5[i][0]}:    born {closest_5[i][2]}     ({closest_5[i][1]} WAR)      -      you are {abs(days_apart)} {day_s} {old_young}")
+
 
     # --------------------------------------------------------------------------------------------------------------------------------------------------------------
     show_franchises = st.checkbox("Show franchise player counts (not recommended for mobile)")
